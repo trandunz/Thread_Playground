@@ -1,64 +1,16 @@
 #include <thread>
-#include <mutex>
+#include "Thread_Safe_Stack.h"
+#include "Semaphore.h"
 #include <vector>
-#include <stack>
 #include <iostream>
 
-using lock_guard = std::lock_guard<std::mutex>;
+Semaphore g_SlotFree(10);
+Semaphore g_Available(0);
+Semaphore g_Mutex(1);
+std::vector<std::thread> Threads;
+Thread_safe_Stack<int> ThreadSafeStack;
 
-std::mutex GlobalStackMutex;
-
-template <typename T>
-class Thread_safe_Stack
-{
-public:
-	inline Thread_safe_Stack()
-	{
-
-	}
-	inline Thread_safe_Stack(const Thread_safe_Stack& _copy)
-	{
-		m_Stack = _copy.m_Stack;
-	}
-
-	inline ~Thread_safe_Stack()
-	{
-		Clear();
-	}
-
-	inline void Pop() const
-	{
-		lock_guard lock(GlobalStackMutex);
-		if (!m_Stack.empty())
-		{
-			m_Stack.pop();
-		}
-	}
-
-	inline bool Empty()
-	{
-		lock_guard lock(GlobalStackMutex);
-		return m_Stack.empty();
-	}
-
-	inline void Push(T&& _item)
-	{
-		lock_guard lock(GlobalStackMutex);
-		m_Stack.push(_item);
-	}
-
-	inline void Clear()
-	{
-		lock_guard lock(GlobalStackMutex);
-		while (!m_Stack.empty())
-		{
-			m_Stack.pop();
-		}
-	}
-
-private:
-	std::stack<T> m_Stack;
-};
+int Cleanup();
 
 void Safe_Join(std::thread&& _thread)
 {
@@ -66,22 +18,58 @@ void Safe_Join(std::thread&& _thread)
 		_thread.join();
 }
 
-void Print(int _value)
+void Print(int&& _value)
 {
-	std::lock_guard<std::mutex> lock(GlobalStackMutex);
 	std::cout << _value << std::endl;
 }
 
-std::vector<std::thread> Threads;
+void Print(std::string_view&& _string)
+{
+	std::cout << _string << std::endl;
+}
+
+void Producer()
+{
+	g_SlotFree.Acquire();
+	g_Mutex.Acquire();
+
+	// Do Stuff
+	ThreadSafeStack.Push(1);
+	Print("Pushed");
+
+	g_Mutex.Release();
+	g_Available.Release();
+}
+
+void Consumer()
+{
+	g_Available.Acquire();
+	g_Mutex.Acquire();
+
+	// Do Stuff
+	ThreadSafeStack.Pop();
+	Print("Poped");
+
+	g_Mutex.Release();
+	g_SlotFree.Release();
+}
 
 int main()
 {
-	Threads.emplace_back(std::thread{ Print, 2 });
-
+	Threads.emplace_back(std::thread{ Producer });
+	Threads.emplace_back(std::thread{ Consumer });
+	
 	for (auto& item : Threads)
 	{
 		Safe_Join(std::move(item));
 	}
 
-	return 0;
+	return Cleanup();
+}
+
+int Cleanup()
+{
+	Threads.clear();
+
+	return NULL;
 }
