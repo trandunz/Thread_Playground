@@ -1,2 +1,6 @@
-﻿  Main.cpp
-  ThreadSafeStack.vcxproj -> D:\Users\mds00002d0\Documents\GitHub\Thread_Playground\ThreadSafeStack\Debug\ThreadSafeStack.exe
+﻿  CWorkQueue.cpp
+  Main.cpp
+  ThreadPool.cpp
+C:\Users\trand\Documents\GitHub\Thread_Playground\ThreadSafeStack\ThreadSafeStack\ThreadPool.cpp(18,20): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+  ThreadSafeStack.vcxproj -> C:\Users\trand\Documents\GitHub\Thread_Playground\ThreadSafeStack\Debug\ThreadSafeStack.exe

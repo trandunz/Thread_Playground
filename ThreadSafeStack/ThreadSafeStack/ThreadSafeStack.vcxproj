@@ -140,10 +140,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CTask.cpp" />
+    <ClCompile Include="CWorkQueue.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CTask.h" />
+    <ClInclude Include="CWorkQueue.h" />
     <ClInclude Include="Semaphore.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Thread_Safe_Stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

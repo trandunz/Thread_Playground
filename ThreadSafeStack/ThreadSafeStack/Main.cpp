@@ -1,14 +1,13 @@
-#include <thread>
+#include "ThreadPool.h"
 #include "Thread_Safe_Stack.h"
 #include "Semaphore.h"
-#include <vector>
-#include <iostream>
 
 Semaphore g_SlotFree(10);
 Semaphore g_Available(0);
 Semaphore g_Mutex(1);
 std::vector<std::thread> Threads;
 Thread_safe_Stack<int> ThreadSafeStack;
+
 
 int Cleanup();
 
@@ -56,20 +55,32 @@ void Consumer()
 
 int main()
 {
-	Threads.emplace_back(std::thread{ Producer });
+	/*Threads.emplace_back(std::thread{ Producer });
 	Threads.emplace_back(std::thread{ Consumer });
 	
 	for (auto& item : Threads)
 	{
 		Safe_Join(std::move(item));
+	}*/
+	ThreadPool& threadPool = ThreadPool::GetInstance();
+	threadPool.Initialize();
+	threadPool.Start();
+
+	for (int i = 0; i < 10; i++)
+	{
+		threadPool.Submit(CTask(i));
 	}
+
+	while (threadPool.GetItemsProcessed() != 10);
+	threadPool.Stop();
+	threadPool.DestoryInstance();
 
 	return Cleanup();
 }
 
 int Cleanup()
 {
-	Threads.clear();
+	//Threads.clear();
 
 	return NULL;
 }
