@@ -8,7 +8,6 @@ Semaphore g_Mutex(1);
 std::vector<std::thread> Threads;
 Thread_safe_Stack<int> ThreadSafeStack;
 
-
 int Cleanup();
 
 void Safe_Join(std::thread&& _thread)
@@ -55,25 +54,13 @@ void Consumer()
 
 int main()
 {
-	/*Threads.emplace_back(std::thread{ Producer });
+	Threads.emplace_back(std::thread{ Producer });
 	Threads.emplace_back(std::thread{ Consumer });
 	
 	for (auto& item : Threads)
 	{
 		Safe_Join(std::move(item));
-	}*/
-	ThreadPool& threadPool = ThreadPool::GetInstance();
-	threadPool.Initialize();
-	threadPool.Start();
-
-	for (int i = 0; i < 10; i++)
-	{
-		threadPool.Submit(CTask(i));
 	}
-
-	while (threadPool.GetItemsProcessed() != 10);
-	threadPool.Stop();
-	threadPool.DestoryInstance();
 
 	return Cleanup();
 }

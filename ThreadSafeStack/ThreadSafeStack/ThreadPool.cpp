@@ -44,7 +44,7 @@ void ThreadPool::DoWork()
 {
 	while (m_bWorking)
 	{
-		m_pWorkQueue->NonBlocking_Pop(m_CurrentJob);
+		m_pWorkQueue->Blocking_Pop(m_CurrentJob);
 		std::cout << m_CurrentJob.GetValue() << std::endl;
 		m_ItemsProcessed++;
 	}
@@ -60,7 +60,6 @@ void ThreadPool::Start()
 
 void ThreadPool::Stop()
 {
-	
 	m_bWorking = false;
 }
 
